@@ -1,4 +1,4 @@
-name: Build TWRP for Exynos Note 10 Lite (r7)
+name: Build Omni-TWRP for Exynos Note 10 Lite (r7)
 
 on:
   workflow_dispatch:
@@ -51,7 +51,8 @@ jobs:
         echo "workspace-folder=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        repo init --depth=1 -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git -b twrp-12.1
+        # Switched to minimal-manifest-twrp Omni base branch
+        repo init --depth=1 -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-12.1
       id: pwd
 
     - name: Repo Sync
@@ -73,7 +74,8 @@ jobs:
       run: |
         export ALLOW_MISSING_DEPENDENCIES=true
         source build/envsetup.sh
-        lunch twrp_r7-eng && make clean && mka recoveryimage -j$(nproc --all)
+        # Switched lunch prefix from twrp_r7-eng to omni_r7-eng
+        lunch omni_r7-eng && make clean && mka recoveryimage -j$(nproc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Set Date Variables
@@ -96,10 +98,10 @@ jobs:
       with:
         files: |
           workspace/out/target/product/r7/twrp-3.7.1_12-0-r7.img
-        name: twrp-r7-${{ steps.date.outputs.DATE_SHORT }}
+        name: omni-twrp-r7-${{ steps.date.outputs.DATE_SHORT }}
         tag_name: ${{ steps.date.outputs.DATE_TAG }}
         body: |
-          Manifest: twrp-12.1
+          Manifest: twrp-12.1 (Omni-based)
           Device: r7
           Target: recovery
       env:
