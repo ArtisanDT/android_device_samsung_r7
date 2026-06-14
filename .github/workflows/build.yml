@@ -1,11 +1,10 @@
-name: Build TWRP for Exynos 9810
+name: Build TWRP for Exynos Note 10 Lite (r7)
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-24.04
     permissions:
       contents: write
