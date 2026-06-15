@@ -1,10 +1,11 @@
-name: Build Omni-TWRP (Android 10) for Exynos Note 10 Lite (r7)
+name: Build TWRP for Note 10 lite
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
+    if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -51,8 +52,7 @@ jobs:
         echo "workspace-folder=$(pwd)" >> $GITHUB_OUTPUT
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        # Targeting the twrp-10-deprecated Omni branch
-        repo init --depth=1 -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-10.0-deprecated
+        repo init --depth=1 -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git -b twrp-12.1
       id: pwd
 
     - name: Repo Sync
@@ -74,8 +74,7 @@ jobs:
       run: |
         export ALLOW_MISSING_DEPENDENCIES=true
         source build/envsetup.sh
-        # Lunching with Omni configuration
-        lunch omni_r7-eng && make clean && mka recoveryimage -j$(nproc --all)
+        lunch twrp_r7-eng && make clean && mka recoveryimage -j$(nproc --all)
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Set Date Variables
@@ -91,18 +90,17 @@ jobs:
         ls -a out/target/product/ && echo
         ls -a out/target/product/r7/ && echo
         cd out/target/product/r7
-        # Updated naming context for Android 10 (TWRP 10.0 base)
-        mv recovery.img twrp-3.7.1_10-0-r7.img
+        mv recovery.img twrp-3.7.1_12-0-r7.img
 
     - name: Upload to Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          workspace/out/target/product/r7/twrp-3.7.1_10-0-r7.img
-        name: omni-twrp-r7-${{ steps.date.outputs.DATE_SHORT }}
+          workspace/out/target/product/r7/twrp-3.7.1_12-0-r7.img
+        name: twrp-r7-${{ steps.date.outputs.DATE_SHORT }}
         tag_name: ${{ steps.date.outputs.DATE_TAG }}
         body: |
-          Manifest: twrp-10-deprecated (Omni-based)
+          Manifest: twrp-12.1
           Device: r7
           Target: recovery
       env:
